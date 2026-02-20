@@ -23,6 +23,22 @@ app.get('/api/restar', (req, res) => {
     res.json(result)
 })
 
+app.get('/api/multiplicar', (req, res) => {
+    const result = {
+        message: 'Este endpoint multiplica dos números',
+        rest: Number(req.query.a) * Number(req.query.b)
+    }
+    res.json(result)
+})
+
+app.get('/api/dividir', (req, res) => {
+    const result = {
+        message: 'Este endpoint divide dos números',
+        rest: Number(req.query.a) / Number(req.query.b)
+    }
+    res.json(result)
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
 })
