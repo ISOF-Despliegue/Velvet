@@ -11,7 +11,7 @@
     "url": "git+https://github.com/ISOF-Despliegue/Velvet.git"
   },
   "license": "ISC",
-  "author": "Erickmel Vázquez",
+  "author": "maverick0322, Eugene1805, ArtCuevas",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
