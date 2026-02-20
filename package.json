@@ -1,0 +1,23 @@
+{
+  "name": "velvet",
+  "version": "1.0.0",
+  "description": "Reproductor de música en microservicios ",
+  "homepage": "https://github.com/ISOF-Despliegue/Velvet#readme",
+  "bugs": {
+    "url": "https://github.com/ISOF-Despliegue/Velvet/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ISOF-Despliegue/Velvet.git"
+  },
+  "license": "ISC",
+  "author": "Erickmel Vázquez",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
