@@ -15,6 +15,14 @@ app.get('/api/sumar', (req, res) => {
   res.json(result)
 })
 
+app.get('/api/restar', (req, res) => {
+    const result = {
+        message: 'Este endpoint resta dos números',
+        rest: Number(req.query.a) - Number(req.query.b)
+    }
+    res.json(result)
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
 })
