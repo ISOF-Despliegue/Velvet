@@ -78,6 +78,13 @@ app.get('/api/constantes', (req, res) => {
   res.json(constants)
 })
 
+app.get('/api/historial', (req, res) => {
+  res.json({
+    total_registros: history.length,
+    historial: history
+  })
+})
+
 
 app.post('/api/constantes', (req, res) => {
   const { nombre, valor } = req.body
@@ -425,6 +432,58 @@ app.put('/api/historial/:id/recalcular', (req, res) => {
   return res.json({
     message: 'Registro del historial reemplazado y recalculado correctamente (PUT completo)',
     record: registroActualizado
+  })
+})
+
+app.patch('/api/historial/:id', (req, res) => {
+  const idParam = obtenerIdPositivo(req.params.id)
+
+  if (idParam === null) {
+    return res.status(400).json({ error: 'El ID debe ser un entero positivo' })
+  }
+
+  const index = history.findIndex(record => record.id === idParam)
+
+  if (index === -1) {
+    return res.status(404).json({ error: `No se encontró ningún registro con el ID ${idParam}` })
+  }
+
+  const { etiqueta } = req.body
+
+  if (etiqueta === undefined) {
+    return res.status(400).json({ error: 'Para usar PATCH, debes enviar el campo "etiqueta"' })
+  }
+
+  if (typeof etiqueta !== 'string') {
+    return res.status(400).json({ error: '"etiqueta" debe ser texto' })
+  }
+
+  history[index].etiqueta = etiqueta
+
+  return res.json({
+    message: 'Etiqueta actualizada correctamente (PATCH)',
+    record: history[index]
+  })
+})
+
+app.delete('/api/historial/:id', (req, res) => {
+  const idParam = obtenerIdPositivo(req.params.id)
+
+  if (idParam === null) {
+    return res.status(400).json({ error: 'El ID debe ser un entero positivo' })
+  }
+
+  const index = history.findIndex(record => record.id === idParam)
+
+  if (index === -1) {
+    return res.status(404).json({ error: `No se encontró ningún registro con el ID ${idParam}` })
+  }
+
+  const registroEliminado = history.splice(index, 1)[0]
+
+  return res.json({
+    message: 'Registro eliminado correctamente',
+    recordEliminado: registroEliminado
   })
 })
 
