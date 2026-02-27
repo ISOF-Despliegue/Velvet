@@ -466,6 +466,38 @@ app.patch('/api/historial/:id', (req, res) => {
   })
 })
 
+app.patch('/api/constantes/:nombre/renombrar', (req, res) => {
+  const { nombre } = req.params
+  const { nuevoNombre } = req.body
+
+  if (!nuevoNombre || typeof nuevoNombre !== 'string' || nuevoNombre.trim() === '') {
+    return res.status(400).json({ 
+      error: 'Debes enviar un "nuevoNombre" válido como texto en el body' 
+    })
+  }
+
+  const nombreNormalizado = nuevoNombre.trim()
+
+  if (!constants.hasOwnProperty(nombre)) {
+    return res.status(404).json({ error: `La constante '${nombre}' no existe` })
+  }
+
+  if (constants.hasOwnProperty(nombreNormalizado)) {
+    return res.status(400).json({ 
+      error: `Ya existe una constante con el nombre '${nombreNormalizado}'` 
+    })
+  }
+
+  const valorGuardado = constants[nombre]
+  constants[nombreNormalizado] = valorGuardado
+  delete constants[nombre]
+
+  return res.json({
+    message: `Constante renombrada exitosamente de '${nombre}' a '${nombreNormalizado}'`,
+    constantes: constants
+  })
+})
+
 app.delete('/api/historial/:id', (req, res) => {
   const idParam = obtenerIdPositivo(req.params.id)
 
@@ -484,6 +516,22 @@ app.delete('/api/historial/:id', (req, res) => {
   return res.json({
     message: 'Registro eliminado correctamente',
     recordEliminado: registroEliminado
+  })
+})
+
+app.delete('/api/historial', (req, res) => {
+  const cantidadEliminada = history.length
+
+  if (cantidadEliminada === 0) {
+    return res.status(404).json({ message: 'El historial ya está vacío, no hay nada que eliminar' })
+  }
+
+  history = [] 
+
+  return res.json({
+    message: 'Todo el historial ha sido eliminado correctamente',
+    total_eliminados: cantidadEliminada,
+    historial_actual: history
   })
 })
 
