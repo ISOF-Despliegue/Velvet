@@ -127,7 +127,7 @@ app.post('/api/calcular-lotes', (req, res) => {
 
   if (!Array.isArray(numeros) || numeros.length === 0) {
     return res.status(400).json({ 
-      error: 'Debes enviar un arreglo de números en el campo "numeros"' 
+      error: 'Debes enviar un arreglo de números en el campo numeros' 
     })
   }
 
@@ -144,7 +144,7 @@ app.post('/api/calcular-lotes', (req, res) => {
       result = numeros.reduce((acc, curr) => acc * curr, 1)
       break
     default:
-      return res.status(400).json({ error: 'Operación no soportada. Usa "sumar" o "multiplicar"' })
+      return res.status(400).json({ error: 'Operación no soportada, usa sumar o multiplicar' })
   }
 
   const newRecord = {
@@ -208,10 +208,29 @@ app.put('/api/constantes', (req, res) => {
 
 app.put('/api/historial/:id', (req, res) => {
   const idParam = Number(req.params.id)
-  const { etiqueta } = req.body
+  
+  if (isNaN(idParam) || idParam <= 0) {
+    return res.status(400).json({ error: 'El ID debe ser un número válido' })
+  }
 
-  if (!etiqueta) {
-    return res.status(400).json({ error: 'Debes enviar el campo "etiqueta" en el body' })
+  const { operacion, numeros, resultado, etiqueta } = req.body
+
+  if (!operacion || !numeros || resultado === undefined || etiqueta === undefined) {
+    return res.status(400).json({ 
+      error: 'Faltan datos, se requiere el recurso completo: operacion, numeros, resultado y etiqueta' 
+    })
+  }
+
+  if (typeof operacion !== 'string' || typeof etiqueta !== 'string') {
+    return res.status(400).json({ error: 'operacion y etiqueta deben ser texto' })
+  }
+
+  if (!Array.isArray(numeros) || !numeros.every(num => typeof num === 'number')) {
+    return res.status(400).json({ error: 'numeros debe ser un arreglo que contenga solo números' })
+  }
+
+  if (typeof resultado !== 'number') {
+    return res.status(400).json({ error: 'resultado debe ser un número' })
   }
 
   const index = history.findIndex(record => record.id === idParam)
@@ -220,10 +239,16 @@ app.put('/api/historial/:id', (req, res) => {
     return res.status(404).json({ error: `No se encontró ningún registro con el ID ${idParam}` })
   }
 
-  history[index].etiqueta = etiqueta
+  history[index] = {
+    id: idParam,
+    operacion,
+    numeros,
+    resultado,
+    etiqueta
+  }
 
   res.json({
-    message: 'Etiqueta del historial actualizada correctamente',
+    message: 'Registro reemplazado por completo exitosamente (PUT)',
     record: history[index]
   })
 })
@@ -436,10 +461,11 @@ app.put('/api/historial/:id/recalcular', (req, res) => {
 })
 
 app.patch('/api/historial/:id', (req, res) => {
-  const idParam = obtenerIdPositivo(req.params.id)
+  const idParam = Number(req.params.id)
+  const { etiqueta } = req.body
 
-  if (idParam === null) {
-    return res.status(400).json({ error: 'El ID debe ser un entero positivo' })
+  if (etiqueta === undefined) {
+    return res.status(400).json({ error: 'Para usar PATCH, debes enviar el campo etiqueta' })
   }
 
   const index = history.findIndex(record => record.id === idParam)
@@ -448,19 +474,9 @@ app.patch('/api/historial/:id', (req, res) => {
     return res.status(404).json({ error: `No se encontró ningún registro con el ID ${idParam}` })
   }
 
-  const { etiqueta } = req.body
-
-  if (etiqueta === undefined) {
-    return res.status(400).json({ error: 'Para usar PATCH, debes enviar el campo "etiqueta"' })
-  }
-
-  if (typeof etiqueta !== 'string') {
-    return res.status(400).json({ error: '"etiqueta" debe ser texto' })
-  }
-
   history[index].etiqueta = etiqueta
 
-  return res.json({
+  res.json({
     message: 'Etiqueta actualizada correctamente (PATCH)',
     record: history[index]
   })
@@ -499,11 +515,7 @@ app.patch('/api/constantes/:nombre/renombrar', (req, res) => {
 })
 
 app.delete('/api/historial/:id', (req, res) => {
-  const idParam = obtenerIdPositivo(req.params.id)
-
-  if (idParam === null) {
-    return res.status(400).json({ error: 'El ID debe ser un entero positivo' })
-  }
+  const idParam = Number(req.params.id)
 
   const index = history.findIndex(record => record.id === idParam)
 
@@ -513,7 +525,7 @@ app.delete('/api/historial/:id', (req, res) => {
 
   const registroEliminado = history.splice(index, 1)[0]
 
-  return res.json({
+  res.json({
     message: 'Registro eliminado correctamente',
     recordEliminado: registroEliminado
   })
