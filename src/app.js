@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -11,6 +12,13 @@ let constants = {
 let history = []
 let nextId = 1
 
+const corsPolicy = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}
+
+app.use(cors(corsPolicy))
 app.use(express.json())
 
 
@@ -202,6 +210,47 @@ app.put('/api/constantes', (req, res) => {
 
   res.json({
     mensaje: 'Todas las constantes fueron reemplazadas',
+    constantes: constants
+  })
+})
+
+app.patch('/api/constantes/:nombre', (req, res) => {
+  const { nombre } = req.params
+  const { valor } = req.body
+
+  if (valor === undefined) {
+    return res.status(400).json({
+      error: 'Debes enviar el nuevo valor'
+    })
+  }
+
+  if (!constants[nombre]) {
+    return res.status(404).json({
+      error: 'La constante no existe'
+    })
+  }
+
+  constants[nombre] = valor
+
+  res.json({
+    mensaje: `Constante ${nombre} actualizada`,
+    constante: constants[nombre]
+  })
+})
+
+app.delete('/api/constantes/:nombre', (req, res) => {
+  const { nombre } = req.params
+
+  if (!constants[nombre]) {
+    return res.status(404).json({
+      error: 'La constante no existe'
+    })
+  }
+
+  delete constants[nombre]
+
+  res.json({
+    mensaje: `Constante ${nombre} eliminada`,
     constantes: constants
   })
 })
