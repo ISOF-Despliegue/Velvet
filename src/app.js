@@ -151,8 +151,17 @@ app.post('/api/calcular-lotes', (req, res) => {
     case 'multiplicar':
       result = numeros.reduce((acc, curr) => acc * curr, 1)
       break
+    case 'restar':
+      result = numeros.reduce((acc, curr) => acc - curr)
+      break
+    case 'dividir':
+      if (numeros.slice(1).includes(0)) {
+        return res.status(400).json({ error: 'Matemáticamente no se puede dividir entre cero' })
+      }
+      result = numeros.reduce((acc, curr) => acc / curr)
+      break  
     default:
-      return res.status(400).json({ error: 'Operación no soportada, usa sumar o multiplicar' })
+      return res.status(400).json({ error: 'Operación no soportada, usa sumar, restar, multiplicar o dividir' })
   }
 
   const newRecord = {
